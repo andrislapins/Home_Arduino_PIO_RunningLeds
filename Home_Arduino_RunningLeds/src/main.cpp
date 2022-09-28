@@ -11,24 +11,51 @@ int direction           = 0;
 
 int interrupt_pin       = 2;
 int interrupt_mode      = RISING;
+int interrupt_happened  = 0;
+int last_turned_on_pin  = 0;
 
 void change_direction() {
   direction = !direction;
+  interrupt_happened = 1;
 }
 
 void running_leds_right() {
-  for (int i = number_of_leds - 1; i >= 0; i--) {
+  int i = number_of_leds - 1;
+
+  if (interrupt_happened) {
+    interrupt_happened = 0;
+    i = last_turned_on_pin;
+  }
+
+  for ( ; i >= 0; i--) {
     digitalWrite(led_pins[i], HIGH);
     delay(delay_between_blips);
     digitalWrite(led_pins[i], LOW);
+
+    if (interrupt_happened) {
+      last_turned_on_pin = i;
+      return;
+    }
   }
 }
 
 void running_leds_left() {
-  for (int i = 0; i < number_of_leds; i++) {
+  int i = 0;
+
+  if (interrupt_happened) {
+    interrupt_happened = 0;
+    i = last_turned_on_pin;
+  }
+
+  for ( ; i < number_of_leds; i++) {
     digitalWrite(led_pins[i], HIGH);
     delay(delay_between_blips);
     digitalWrite(led_pins[i], LOW);
+
+    if (interrupt_happened) {
+      last_turned_on_pin = i;
+      return;
+    }
   }
 }
 
