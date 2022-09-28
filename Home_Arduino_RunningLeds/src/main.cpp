@@ -34,6 +34,10 @@ void running_leds_right() {
 
     if (interrupt_happened) {
       last_turned_on_pin = i;
+
+      Serial.print("Interrupt. Last LED: ");
+      Serial.println(last_turned_on_pin);
+      
       return;
     }
   }
@@ -54,6 +58,10 @@ void running_leds_left() {
 
     if (interrupt_happened) {
       last_turned_on_pin = i;
+
+      Serial.print("Interrupt. Last LED: ");
+      Serial.println(last_turned_on_pin);
+
       return;
     }
   }
@@ -68,10 +76,22 @@ void setup() {
 
   pinMode(button_pin, INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(interrupt_pin), change_direction, interrupt_mode);
+  attachInterrupt(
+    digitalPinToInterrupt(interrupt_pin), change_direction, interrupt_mode
+  );
 }
 
 void loop() {
+  if (Serial.available() > 0) {
+    String speed = Serial.readString();
+    speed.trim();
+    delay_between_blips = speed.toInt();
+
+    Serial.print("Changing speed to ");
+    Serial.print(delay_between_blips);
+    Serial.println("miliseconds");
+  }
+
   if (direction) {
     running_leds_right();
   } else {
